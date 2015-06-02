@@ -17,19 +17,40 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     // More info: https://visionmedia.github.io/page.js/
     page('/', function () {
       app.route = 'home';
+      app.pageTitle = 'Car rental';
     });
 
-    page('/users', function () {
-      app.route = 'users';
+    page('/rent-a-car', function () {
+      app.route = 'rent-a-car';
+      app.pageTitle = 'Rent a car';
     });
 
-    page('/users/:name', function (data) {
-      app.route = 'user-info';
-      app.params = data.params;
+    page('/sign-in', function () {
+      app.route = 'sign-in';
+      app.pageTitle = 'Sign in';
     });
 
-    page('/contact', function () {
-      app.route = 'contact';
+    page('/confirm-reservation', function () {
+      app.route = 'confirm-reservation';
+      app.pageTitle = 'Confirm Reservation';
+    });
+
+    page('/confirmed', function () {
+      app.route = 'confirmed';
+      app.pageTitle = 'Confirmed';
+    });
+
+    page('/deals', function () {
+      app.route = 'deals';
+      app.pageTitle = 'Deals';
+    });
+
+    page('/truck', function () {
+      app.route = 'truck';
+    });
+
+    page('/other', function () {
+      app.route = 'other';
     });
 
     // add #! before urls

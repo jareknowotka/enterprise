@@ -1,0 +1,502 @@
+<link rel="import" href="rent-autocomplete.html">
+<link rel="import" href="rent-calendar.html">
+<link rel="import" href="rent-hour.html">
+
+<dom-module id="rent-a-car">
+  <style>
+    :host {
+      display: block;
+      padding-bottom: 2rem;
+    }
+
+
+    paper-material {
+      border-radius: 2px;
+      height: 100%;
+      padding: 16px 0px 16px 0px;
+      width: calc(97.33% - 16px);
+      margin: 16px auto;
+      background: white;
+      padding-left: 16px;
+      padding-right: 16px;
+      box-sizing: border-box;
+    }
+
+    paper-button {
+      background: var(--dark-primary-color);
+      color: white;
+    }
+
+    paper-material .button-container {
+      padding-top: 1rem;
+    }
+
+    rent-autocomplete, paper-checkbox {
+
+      padding-bottom: 1rem;
+
+    }
+
+    figure {
+
+      margin: 0;
+      padding: 16px;
+
+    }
+
+    figcaption p {
+
+      margin: 0px;
+
+    }
+
+    img {
+
+      max-width: 100%;
+
+    }
+
+    figcaption p:first-child {
+
+      margin-top: 0.5rem;
+      margin-bottom: 0.2rem;
+      font-weight: bold;
+
+    }
+
+    figcaption p:last-child {
+
+      color: var(--secondary-text-color);
+      font-size: 0.8rem;
+
+    }
+
+    .cars {
+
+      overflow: auto;
+      font-size: 0;
+
+    }
+
+    .car {
+
+      position: relative;
+      overflow: hidden;
+      width: 50%;
+      display: inline-block;
+      vertical-align: top;
+      font-size: 1rem;
+
+    }
+
+    .car figure {
+
+      pointer-events: none;
+
+    }
+
+    .car.selected {
+
+      background-color: var(--default-primary-color);
+      color: var(--text-primary-color);
+
+    }
+
+    .car.selected figcaption p:last-child {
+
+      color: var(--text-primary-color);
+
+    }
+
+
+    @media (min-width: 600px) {
+
+      .car {
+
+        width: 33%;
+
+      }
+
+    }
+
+
+  </style>
+  <template>
+
+      <section>
+
+        <paper-material elevation="1">
+
+          <h2>Where would you like to pickup a car?</h2>
+
+          <rent-autocomplete choosed-value="{{ pickupLocation }}" label="Pickup Location" suggestions="[[ locations ]]"></rent-autocomplete>
+
+          <paper-checkbox checked="{{ differentReturnLocation }}">Return to a different location?</paper-checkbox>
+
+          <template is="dom-if" if="{{ differentReturnLocation }}">
+            <rent-autocomplete choosed-value="{{ returnLocation }}" label="Return Location" suggestions="[[ locations ]]"></rent-autocomplete>
+          </template>
+
+        </paper-material>
+
+        <template is="dom-if" if="{{ !dateStage }}">
+          <div class="button-container">
+            <paper-button raised noink on-click="progressToDates">Select Dates</paper-button>
+          </div>
+        </template>
+
+      </section>
+
+
+      <template is="dom-if" if="{{ dateStage }}">
+
+        <section>
+
+          <paper-material elevation="1">
+    
+            <h2>Pickup date</h2>
+            
+            <rent-calendar selected-date="{{ pickupDate }}"></rent-calendar>
+            <rent-hour selected-hour="{{ pickupTime }}"></rent-hour>
+
+          </paper-material>
+
+        </section>
+
+        <section>
+
+          <paper-material elevation="1">
+    
+            <h2>Return date</h2>
+            
+            <rent-calendar selected-date="{{ returnDate }}"></rent-calendar>
+            <rent-hour selected-hour="{{ returnTime }}"></rent-hour>
+
+          </paper-material>
+
+        </section>
+
+        <template is="dom-if" if="{{ !carStage }}">
+          <div class="button-container">
+            <paper-button raised noink on-click="progressToCar">Select Car</paper-button>
+          </div>
+        </template>
+
+      </template>
+
+      <template is="dom-if" if="{{ carStage }}">
+
+        <section>
+          
+          <paper-material elevation="1">
+            <h2>What car do you need?</h2>
+
+            <div class="cars">
+              <template is="dom-repeat" id="carSelector" items="{{ cars }}">
+                <div class="car" on-click="selectCar">
+                  <figure>
+                    <img src="{{ item.image }}">
+                    <figcaption>
+                      <p>{{ item.name }}</p>
+                      <p>{{ item.desc }}</p>
+                    </figcaption>
+                  </figure>
+                </div>
+              </template>
+            </div>
+
+          </paper-material>
+
+        </section>
+
+        <template is="dom-if" if="{{ !couponStage }}">
+          <div class="button-container">
+            <paper-button raised on-click="progressToCoupon">Do you have a coupon?</paper-button>
+          </div>
+        </template>
+
+
+        <template is="dom-if" if="{{ couponStage }}">
+
+          <section>
+            
+            <paper-material elevation="1">
+
+              <h2>Do you have a coupon?</h2>
+
+              <paper-input-container>
+                <label>Coupon Code</label>
+                <input is="iron-input">
+              </paper-input-container>
+
+            </paper-material>
+
+          </section>
+
+        </template>
+
+        <section>
+          
+          <paper-material elevation="1">
+
+            <h2>Sign in</h2>
+
+            <paper-input-container>
+              <label>User name</label>
+              <input is="iron-input">
+            </paper-input-container>
+
+            <paper-input-container>
+              <label>Password</label>
+              <input is="iron-input">
+            </paper-input-container>
+
+            <div class="button-container">
+              <a href="/confirm-reservation">
+                <paper-button raised>Sign in</paper-button>
+              </a>
+            </div>
+
+          </paper-material>
+
+
+        </section>
+
+
+      </template>
+
+
+  </template>
+</dom-module>
+<script>
+(function () {
+
+  var cars = [
+    {
+      image: 'http://www.enterprise.com/content/car_rental/images/2015/ico_KIA_RIO_2013_ECAR.png',
+      name: 'Economy',
+      desc: 'Kia Rio or similar'
+    },
+    {
+      image: 'http://www.enterprise.com/content/car_rental/images/2015/ico_NISS_VERS_NOTE_2014_CCAR.png',
+      name: 'Compact',
+      desc: 'Nissan Versa Note or similar'
+    },
+    {
+      image: 'http://www.enterprise.com/content/car_rental/images/2015/ico_TOYO_CORO_2014_ICAR.png',
+      name: 'Intermediate',
+      desc: 'Toyota Corolla or similar'
+    },
+    {
+      image: 'http://www.enterprise.com/content/car_rental/images/2015/ico_VOLK_JETT_2014_SCAR.png',
+      name: 'Standard',
+      desc: 'Volkswagan Jetta or similar'
+    },
+    {
+      image: 'http://www.enterprise.com/content/car_rental/images/2015/ico_FORD_FUSI_2014_FCAR.png',
+      name: 'Full Size',
+      desc: 'Ford Fusion or similar'
+    },
+    {
+      image: 'http://www.enterprise.com/content/car_rental/images/2015/ico_CHRY_300_2013_PCAR.png',
+      name: 'Premium',
+      desc: 'Chrysler 300 or similar'
+    },
+    {
+      image: 'http://www.enterprise.com/content/car_rental/images/2015/ico_CADI_ATS_2013_LCAR.png',
+      name: 'Luxury',
+      desc: 'Cadillac ATS or similar'
+    },
+    {
+      image: 'http://www.enterprise.com/content/car_rental/images/2015/ico_DODG_GR_CARA_2013_MVAR.png',
+      name: 'Minivan',
+      desc: 'Dodge Grand Caravan or similar'
+    },
+    {
+      image: 'http://www.enterprise.com/content/car_rental/images/2015/ico_TOYO_RAV4_2013_IFAR.png',
+      name: 'Intermediate SUV',
+      desc: 'Toyota Rav4 or similar'
+    },
+    {
+      image: 'http://www.enterprise.com/content/car_rental/images/2015/ico_HYUN_SANT_FE_2013_SFAR.png',
+      name: 'Standard SUV',
+      desc: 'Hyundai Santa Fe or similar'
+    },
+    {
+      image: 'http://www.enterprise.com/content/car_rental/images/2015/ico_LINC_NAVI_2013_LFAR.png',
+      name: 'Luxury SUV',
+      desc: 'Lincoln Navigator or similar'
+    },
+    {
+      image: 'http://www.enterprise.com/content/car_rental/images/2015/ico_BMW_528i_2014_UXAR.png',
+      name: 'Premium Elite',
+      desc: 'BMW 5 Series or similar'
+    },
+    {
+      image: 'http://www.enterprise.com/content/car_rental/images/2015/ico_CHEV_TAHO_2015_FFAR.png',
+      name: 'Large SUV',
+      desc: 'Chevrolet Tahoe or similar'
+    },
+    {
+      image: 'http://www.enterprise.com/content/car_rental/images/2015/ico_NISS_FRON_2013_SPAR.png',
+      name: 'Small Pickup',
+      desc: 'Nissan Frontier or similar model'
+    },
+    {
+      image: 'http://www.enterprise.com/content/car_rental/images/2015/ico_RAM_1500_QUAD_2013_PPAR.png',
+      name: 'Pickup',
+      desc: 'Ram 1500 Quad Cab or similar model'
+    },
+    {
+      image: 'http://www.enterprise.com/content/car_rental/images/2015/ico_DODG_JOUR_2013_FGAR.png',
+      name: 'Full Size Crossover',
+      desc: 'Dodge Journey or similar'
+    },
+    {
+      image: 'http://www.enterprise.com/content/car_rental/images/2015/ico_CHEV_EXPR_2013_SKAR.png',
+      name: 'Cargo Van',
+      desc: 'Chevrolet Express Cargo or similar'
+    },
+    {
+      image: 'http://www.enterprise.com/content/car_rental/images/2015/ico_BMW_X5_2014_WFAR.png',
+      name: 'Luxury Elite SUV',
+      desc: 'BMW X5 or similar model'
+    },
+    {
+      image: 'http://www.enterprise.com/content/car_rental/images/2015/ico_CADI_SRX_2013_UFAR.png',
+      name: 'Premium Elite SUV',
+      desc: 'Cadillac SRX or similar model'
+    },
+    {
+      image: 'http://www.enterprise.com/content/car_rental/images/2015/ico_TOYO_SIEN_2013_SVAR.png',
+      name: '8 Passenger Minivan',
+      desc: 'Toyota Sienna or similar model'
+    },
+    {
+      image: 'http://www.enterprise.com/content/car_rental/images/2015/ico_LINC_MKC_2015_RFAR.png',
+      name: 'Standard Elite SUV',
+      desc: 'Lincoln MKC or similar'
+    },
+    {
+      image: 'http://www.enterprise.com/content/car_rental/images/2015/ico_FORD_TRAN_15PAX_2015_FVAR.png',
+      name: '15 Passenger Van',
+      desc: 'Ford Transit Wagon or similar'
+    }
+  ];
+
+  Polymer({
+    is: 'rent-a-car',
+    properties: {
+      cars: {
+        type: Array,
+        value: cars
+      },
+      locations: {
+        type: Array,
+        value: [
+          'Stuttgart',
+          'Warsaw',
+          'Berlin',
+          'Paris',
+          'London',
+          'Madrit',
+          'Lisbon'
+        ]
+      },
+      pickupLocation: {
+        type: String,
+        value: '',
+        notify: true,
+        observer: 'pickupLocationChanged'
+      },
+      returnLocation: {
+        type: String,
+        value: '',
+        notify: true
+      },
+      pickupDate: {
+        type: String,
+        value: ''
+      },
+      pickupTime: {
+        type: String,
+        value: ''
+      },
+      returnDate: {
+        type: String,
+        value: ''
+      },
+      returnTime: {
+        type: String,
+        value: ''
+      },
+      pickupDateAndTime: {
+        type: String,
+        notify: true,
+        reflectToAttribute: true,
+        computed: '_displayDateAndTime(pickupDate, pickupTime)'
+      },
+      returnDateAndTime: {
+        type: String,
+        notify: true,
+        reflectToAttribute: true,
+        computed: '_displayDateAndTime(returnDate, returnTime)'
+      },
+      selectedCar: {
+        type: String,
+        notify: true,
+        reflectToAttribute: true,
+        value: ''
+      },
+      dateStage: {
+        type: Boolean,
+        value: false
+      },
+      carStage: {
+        type: Boolean,
+        value: false
+      },
+      couponStage: {
+        type: Boolean,
+        value: false
+      }
+    },
+    _displayDateAndTime: function(date, time) {
+      return date + ' ' + time;
+    },
+    progressToDates: function() {
+      this.dateStage = true;
+    },
+    progressToCar: function() {
+      this.carStage = true;
+    },
+    progressToCoupon: function() {
+      this.couponStage = true;
+    },
+    pickupLocationChanged: function() {
+      if ( !this.returnLocation ) {
+        this.returnLocation = this.pickupLocation;
+      }
+    },
+    selectCar: function(e) {
+      var car = this.$$('#carSelector').itemForElement(e.target);
+      this.selectedCar = car.name;
+
+      // needs refactoring
+      var all = document.querySelectorAll('.car');
+      Array.prototype.forEach.call( all, function(node){
+        node.classList.remove('selected');
+      });
+      e.target.classList.add('selected');
+    },
+    ready: function() {
+      // document.querySelectorAll('.rent-form-button').addEventListener('click', function() {
+
+      //   document.querySelector('#form').selectNext();
+
+      // });
+    }
+  });
+})();
+
+</script>

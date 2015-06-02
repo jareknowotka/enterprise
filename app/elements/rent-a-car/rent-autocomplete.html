@@ -1,0 +1,115 @@
+<dom-module id="rent-autocomplete">
+
+  <style>
+    :host {
+      display: block;
+    }
+
+    paper-item {
+
+      position: relative;
+      min-height: 1rem;
+      border-bottom: 1px solid #ccc;
+      cursor: pointer;
+
+    }
+
+    paper-item:hover {
+
+      background-color: #fafafa;
+
+    }
+
+    paper-input-container {
+
+      padding: 0px;
+
+    }
+
+    p {
+
+      margin: 0.6rem;
+
+    }
+
+/*    @media (max-width: 600px) {
+      h1.paper-font-display1 {
+        font-size: 24px;
+      }
+    }
+*/
+  </style>
+
+  <template>
+    <paper-input-container>
+      <label>{{ label }}</label>
+      <input id="user_input" is="iron-input" bind-value="{{ value }}">
+    </paper-input-container>
+    <template is="dom-if" if="{{ isChoosing }}">
+      <div id="autocompleteResults">
+        <template is="dom-repeat" id="suggestionList" items="{{ filterdSuggestions }}">
+          <paper-item on-tap="selectValue">
+            <paper-item-body>
+              <p>{{item}}</p>
+            </paper-item-body>
+            <paper-ripple></paper-ripple>
+          </paper-item>
+        </template>
+      </div>
+    </template>
+  </template>
+
+</dom-module>
+<script>
+  (function () {
+    Polymer({
+      is: 'rent-autocomplete',
+      properties: {
+        label: String,
+        value: String,
+        choosedValue: {
+          type: String,
+          notify: true,
+          reflectToAttribute: true,
+          value: ''
+        },
+        isChoosing: {
+          type: Boolean,
+          value: false
+        },
+        suggestions: Array,
+        filterdSuggestions: Array
+      },
+      listeners: {
+        'user_input.keyup': 'keypress',
+        'user_input.blur': 'blur'
+      },
+      isTyped: function(item) {
+        return item.toLowerCase().indexOf( this.value.toLowerCase() ) >= 0;
+      },
+      keypress: function(){
+        this.isChoosing = true;
+        this.filterdSuggestions = this.suggestions.filter(this.isTyped, this);
+      },
+      selectValue: function(e){
+        var item = this.$$('#suggestionList').itemForElement(e.target);
+        this.value = item;
+        this.choosedValue = item;
+        this.closeSuggestions();
+      },
+      blur: function(){
+        this.closeSuggestions();
+        document.querySelector('body').scrollTop = 0;
+      },
+      closeSuggestions: function() {
+        var h = this;
+        setTimeout(function(){
+          h.isChoosing = false;
+        }, 200);
+      },
+      ready: function() {
+
+      }
+    });
+  })();
+</script>

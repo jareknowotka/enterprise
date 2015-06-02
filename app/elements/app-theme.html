@@ -21,8 +21,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 /* Application theme */
 
 :root {
-  --dark-primary-color: #303F9F;
-  --default-primary-color:#3F51B5;
+  --dark-primary-color: #00A664;
+  --default-primary-color:#00A664;
   --light-primary-color: #C5CAE9;
   --text-primary-color: #ffffff; /*text/icons*/
   --accent-color: #FF4081;
@@ -55,10 +55,41 @@ paper-material {
   background: white;
 }
 
+body /deep/ h2 {
+  padding: 0px;
+  margin: 0px;
+  font-size: 1.414rem;
+  text-align: center;
+  margin-bottom: 1.6rem;
+  font-weight: normal;
+}
+
+body /deep/ .button-container {
+  text-align: center;
+}
+
+.button-container {
+  padding-top: 1rem;
+}
+
+.button-container paper-button {
+  background: var(--dark-primary-color);
+  color: var(--text-primary-color);
+}
+
+
 #mainToolbar {
   box-shadow: 0 4px 5px 0 rgba(0,0,0,.14),
   0 2px 9px 1px rgba(0,0,0,.12),
   0 4px 2px -2px rgba(0,0,0,.2);
+}
+
+.appname {
+  text-align: center;
+}
+
+#mainToolbar.has-shadow .appname {
+  display: none;
 }
 
 paper-menu iron-icon {
@@ -68,11 +99,6 @@ paper-menu iron-icon {
 
 .paper-menu > .iron-selected {
   color: var(--default-primary-color);
-}
-
-#mainToolbar .bottom {
-  padding-bottom: 120px;
-  padding-left: 30px;
 }
 
 paper-menu a {
@@ -97,9 +123,23 @@ paper-menu a {
   padding: 0px 16px;
 }
 
+.link-button {
+  color: var(--text-primary-color);
+}
+
 #drawerToolbar {
   border-bottom: var(--drawer-toolbar-border-color);
   height: 120px;
+}
+
+#drawerToolbar img {
+  max-width: 60%;
+}
+
+.center {
+
+  text-align: center;
+
 }
 
 #paperToggle {
@@ -112,11 +152,66 @@ paper-menu a {
   padding: 8px;
 }
 
+
+.offer-button {
+
+  text-decoration: none;
+
+}
+
+.offer-button span {
+
+  display: block;
+  text-align: center;
+
+}
+
+.offer-button span:first-child {
+
+  color: var(--primary-text-color);
+  font-size: 1.2rem;
+  padding-bottom: 0.6rem;
+
+}
+
+.offer-button span:last-child {
+
+  color: var(--default-primary-color);
+
+}
+
+h2.inter {
+
+  margin-top: 2rem;
+
+}
+
+body /deep/ select:focus, body /deep/ input[type="text"] { font-size: 16px; }
+
 /* Breakpoints */
+
+@media all and (min-width: 0px) and (max-width: 360px) and (orientation: portrait) {
+
+  .logo {
+
+    max-width: 120px;
+
+  }
+
+}
 
 /* Small */
 
 @media (max-width: 600px) {
+
+
+  /* iphone minimal-ui */
+  body.fullbleed {
+
+    position: relative;
+    height: calc(100vh - 72px);
+
+  }
 
   paper-toolbar.has-shadow {
     height: 56px;
@@ -149,15 +244,6 @@ paper-menu a {
     background: white;
   }
 
-  #mainToolbar .bottom {
-    padding-left: 50px;
-    padding-bottom: 24px;
-  }
-
-  #mainToolbar.has-shadow .bottom {
-    padding-bottom: 0px;
-  }
-
   .appname {
     font-size: 24px;
     padding-bottom: 0px;
@@ -171,13 +257,6 @@ paper-menu a {
     padding-left: 30px;
     padding-right: 30px;
   }
-
-    #mainToolbar.has-shadow .bottom {
-        margin-left: 50px;
-        padding-bottom: 0;
-        padding-left: 0;
-        font-size: 24px;
-    }
 
 }
 

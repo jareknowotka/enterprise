@@ -1,0 +1,269 @@
+<dom-module id="rent-calendar">
+
+  <style>
+
+    :host {
+      display: block;
+    }
+
+    .month {
+      overflow: auto;
+    }
+
+    .month paper-button, .day {
+      margin: 0px;
+      min-width: initial;
+      display: block;
+      float: left;
+      width: 14.285714286%;
+      text-align: center;
+    }
+
+    .current {
+
+      background: var(--dark-primary-color);
+      color: white;
+
+    }
+
+    .today {
+
+      font-weight: bold;
+
+    }
+
+    .disabled {
+
+      color: var(--disabled-text-color);
+
+    }
+
+    .day {
+
+      box-sizing: border-box;
+      padding: 16px;
+
+    }
+
+  </style>
+
+  <template>
+    
+    <header class="center horizontal layout">
+
+      <paper-icon-button id="prevMonth" icon="arrow-back"></paper-icon-button>
+      <span class="flex"></span>
+      <div>{{ formatedCurrentDate }}</div>
+      <span class="flex"></span>
+      <paper-icon-button id="nextMonth" icon="arrow-forward"></paper-icon-button>
+
+    </header>
+
+    <div class="month" id="monthDisplay">
+
+      <template is="dom-repeat" id="dayNames" items="{{ dayNames }}">
+        <div class="day">{{item}}</div>
+      </template>
+
+      <template is="dom-repeat" id="dayList" items="{{ days }}">
+        
+        <paper-button noink class$="{{ item.class }}" on-click="chooseDay">{{ item.day }}</paper-button>
+
+      </template>
+
+    </div>
+
+  </template>
+
+</dom-module>
+<script>
+(function () {
+
+  var monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  var shortNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  function getDaysArray(day, month, year) {
+      var numDaysInMonth, daysInWeek, daysIndex, index, i, l, daysArray, backIndex, backDay, previousMonth, previousYear, nextMonth, nextYear, today, todaysMonth, todaysYear, klass;
+
+      numDaysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+      daysInWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      daysIndex = { 'Sun': 0, 'Mon': 1, 'Tue': 2, 'Wed': 3, 'Thu': 4, 'Fri': 5, 'Sat': 6 };
+      index = daysIndex[(new Date(year, month, 1)).toString().split(' ')[0]];
+      today = new Date( new Date().getTime() ).getDay();
+      todaysMonth = new Date( new Date().getTime() ).getMonth();
+      todaysYear = new Date( new Date().getTime() ).getYear();
+      previousMonth = ( month === 0 ) ? 11 : month - 1;
+      nextMonth = ( month === 11 ) ? 0 : month + 1;
+      previousYear = ( previousMonth === 11 ) ? year - 1 : year;
+      nextYear = ( month === 0 ) ? year + 1 : year;
+      daysArray = [];
+
+      // add days from previous month
+      if ( index > 0 ) {
+        backIndex = index;
+        backDay = numDaysInMonth[previousMonth];
+        while( backIndex > 0 ) {
+          backIndex--;
+          daysArray.unshift({
+            'day': backDay,
+            'month': previousMonth,
+            'year': previousYear,
+            'class': previousMonth < todaysMonth ? 'previous disabled' : 'previous'
+          });
+          backDay--;
+        }
+      }
+
+      // add current month's days
+      for (i = 0, l = numDaysInMonth[month]; i < l; i++) {
+        klass = [];
+        if ( month === todaysMonth && i + 1 === today ) {
+          klass.push('today');
+        }
+        if ( month < todaysMonth || ( month === todaysMonth && i + 1 < today ) ) {
+          klass.push('disabled');
+        }
+        daysArray.push({
+          'day': i + 1,
+          'month': month,
+          'year': year,
+          'class': klass.join(' ')
+        });
+      }
+
+      index = daysIndex[(new Date(year, month, i)).toString().split(' ')[0]];
+
+      // any days from next month
+      i = 0;
+      while( index < 6) {
+        index++; i++;
+        klass = [];
+        klass.push('next');
+        if ( nextMonth === todaysMonth && i === today ) {
+          klass.push('today');
+        }
+        if ( nextMonth < todaysMonth ) {
+          klass.push('disabled');
+        }
+        daysArray.push({
+          'day': i,
+          'month': nextMonth,
+          'year': nextYear,
+          'class': klass.join(' ')
+        });
+      }
+
+      return daysArray;
+  }
+
+  function getTomorrowDate() {
+    return new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
+  }
+
+  Polymer({
+    is: 'rent-calendar',
+    properties: {
+      days: Array,
+      dayNames: {
+        type: Array,
+        value: ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+      },
+      currentDay: {
+        type: Number,
+        value: function() {
+          return getTomorrowDate().getDay();
+        }
+      },
+      currentMonth: {
+        type: Number,
+        value: function() {
+          return getTomorrowDate().getMonth();
+        }
+      },
+      currentYear: {
+        type: Number,
+        value: function() {
+          return getTomorrowDate().getFullYear();
+        }
+      },
+      viewMonth: {
+        type: Number,
+        value: function() {
+          return getTomorrowDate().getMonth();
+        }
+      },
+      viewYear: {
+        type: Number,
+        value: function() {
+          return getTomorrowDate().getFullYear();
+        }
+      },
+      formatedCurrentDate: {
+        type: String,
+        computed: '_displayDate(viewMonth, viewYear)',
+        observer: '_setDays'
+      },
+      selectedDate: {
+        type: String,
+        notify: true,
+        reflectToAttribute: true,
+        computed: '_formattedDate(currentDay, currentMonth, currentYear)'
+      }
+    },
+    listeners: {
+      'prevMonth.click': '_prevMonth',
+      'nextMonth.click': '_nextMonth'
+    },
+    _prevMonth: function() {
+      if ( this.viewMonth === 0 ) {
+        this.viewMonth = 11;
+        this.viewYear--;
+      } else {
+        this.viewMonth--;
+      }
+    },
+    _nextMonth: function() {
+      if ( this.viewMonth === 11 ) {
+        this.viewMonth = 0;
+        this.viewYear++;
+      } else {
+        this.viewMonth++;
+      }
+    },
+    _deselectDay: function() {
+      for ( var i = 0; i < this.days.length; i++ ) {
+        this.set('days.'+i+'.class', this.get('days.'+i+'.class').replace(' current', '') );
+      }
+    },
+    _selectDay: function(index) {
+      this._deselectDay();
+      this.set('days.'+index+'.class', this.get('days.'+index+'.class') + ' current');
+      this.currentDay = this.get('days.'+index+'.day' );
+      this.currentMonth = this.get('days.'+index+'.month' );
+      this.currentYear = this.get('days.'+index+'.year' );
+    },
+    chooseDay: function(e) {
+      var index = this.$$('#dayList').indexForElement(e.target);
+      this._selectDay( index );
+    },
+    _setDays: function() {
+      this.days = getDaysArray( this.currentDay, this.viewMonth, this.viewYear );
+      for (var i = 0; i < this.days.length; i++) { 
+        if ( this.days[i].day === this.currentDay && this.days[i].month === this.currentMonth ) {
+          this._selectDay( i );
+          break;
+        }
+      }
+    },
+    _displayDate: function(viewMonth, viewYear) {
+      return monthNames[viewMonth] + ' ' + viewYear;
+    },
+    _formattedDate: function(currentDay, currentMonth) {
+      return currentDay + ' ' + shortNames[currentMonth];// + ' ' + currentYear;
+    },
+    ready: function() {
+      this._isReady = true;
+    }
+  });
+})();
+</script>

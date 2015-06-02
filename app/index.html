@@ -16,7 +16,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="generator" content="Polymer Starter Kit" />
-  <title>Polymer Starter Kit</title>
+  <title>Enterprise Rent a car</title>
   <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
 
   <!-- Chrome for Android theme color -->
@@ -56,6 +56,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 </head>
 
 <body unresolved class="fullbleed layout vertical">
+
   <template is="dom-bind" id="app">
 
     <paper-drawer-panel id="paperDrawerPanel" forceNarrow>
@@ -63,85 +64,222 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <!-- Drawer Toolbar -->
         <paper-toolbar id="drawerToolbar">
-          <span>Menu</span>
+          <a href="/">
+            <img src="http://www.enterprise.com/car_rental/include/20150522100548/images/ban_enterpriseLogo.jpg">
+          </a>
         </paper-toolbar>
 
         <!-- Drawer Content -->
-          <paper-menu class="list" attr-for-selected="data-route" selected="{{route}}" on-iron-select="onMenuSelect">
-              <a data-route="home" href="/">
-                <iron-icon icon="home"></iron-icon>
-                <span>Home</span>
-              </a>
+        <paper-menu class="list" attr-for-selected="data-route" selected="{{route}}" on-iron-select="onMenuSelect">
+            <a data-route="home" href="/">
+              <span>Rent a car</span>
+            </a>
 
-              <a data-route="users" href="/users">
-                <iron-icon icon="info"></iron-icon>
-                <span>Users</span>
-              </a>
+            <a data-route="sign-in" href="/sign-in">
+              <span>Manage reservation</span>
+            </a>
 
-              <a data-route="contact" href="/contact">
-                <iron-icon icon="mail"></iron-icon>
-                <span>Contact</span>
-              </a>
-          </paper-menu>
+            <a data-route="deals" href="/deals">
+              <span>Deals</span>
+            </a>
+
+            <a data-route="truck" href="/truck">
+              <span>Rent a truck</span>
+            </a>
+        </paper-menu>
+
       </div>
-      <paper-header-panel main mode="waterfall-tall">
+      <paper-header-panel main mode="waterfall-tall" tall-class="medium-tall">
         <!-- Main Toolbar -->
         <paper-toolbar id="mainToolbar">
           <button tabindex="1" id="paperToggle" paper-drawer-toggle>
             <iron-icon icon="menu" paper-drawer-toggle></iron-icon>
           </button>
+          <div>
+            <span>{{ pickupLocation }}</span><br>
+            <span>{{ pickupDate }}</span>
+          </div>
+          <template is="dom-if" if="{{ pickupLocation }}">
+            <paper-icon-button icon="arrow-forward"></paper-icon-button>
+          </template>
+          <div>
+            <span>{{ returnLocation }}</span><br>
+            <span>{{ returnDate }}</span>
+          </div>
           <span class="flex"></span>
-
+          <div hidden$="{{ pickupLocation }}">
+            <a href="/">
+              <img class="logo" src="http://www.enterprise.com/car_rental/include/20150522100548/images/ban_enterpriseLogo.jpg">
+            </a>
+          </div>
+          <span class="flex"></span>
           <!-- Toolbar icons -->
-          <paper-icon-button icon="refresh"></paper-icon-button>
-          <paper-icon-button icon="search"></paper-icon-button>
-          <div class="middle"></div>
+          <paper-icon-button icon="translate"></paper-icon-button>
+          <a href="/sign-in" class="link-button" on-click="onMenuSelect">
+            <paper-icon-button icon="social:person"></paper-icon-button>
+          </a>
 
           <!-- Application name -->
-          <div class="appname bottom paper-font-display2">Polymer Starter Kit</div>
+          <div class="appname middle flex">{{pageTitle}}</div>
 
         </paper-toolbar>
 
         <!-- Main Content -->
           <iron-pages attr-for-selected="data-route" selected="{{route}}">
 
+
             <section data-route="home">
-              <paper-material elevation="1">
-                <my-greeting></my-greeting>
 
-                <p class="paper-font-subhead">You now have:</p>
-                <my-list></my-list>
+              <a href="/rent-a-car" class="offer-button">
+                <paper-material elevation="1">
+                  <span>Rent a car</span>
+                  <span>Make reservation</span>
+                </paper-material>
+              </a>
+              <a href="/truck" class="offer-button">
+                <paper-material elevation="1">
+                  <span>Rent a truck</span>
+                  <span>Make reservation</span>
+                </paper-material>
+              </a>
 
-                <p class="paper-font-body2">Looking for more Web App layouts? Check out our <a href="https://github.com/PolymerElements/app-layout-templates">layouts</a> collection. You can also <a href="http://polymerelements.github.io/app-layout-templates/">preview</a> them live.</p>
-              </paper-material>
+              <h2 class="inter">Bussiness solutions</h2>
+
+              <a href="/other" class="offer-button">
+                <paper-material elevation="1">
+                  <span>Businness rental program</span>
+                  <span>Learn more</span>
+                </paper-material>
+              </a>
+
+              <a href="/other" class="offer-button">
+                <paper-material elevation="1">
+                  <span>Long term rentals</span>
+                  <span>Learn more</span>
+                </paper-material>
+              </a>
+
+              <a href="/other" class="offer-button">
+                <paper-material elevation="1">
+                  <span>Buy a car</span>
+                  <span>Browse avaliable cars</span>
+                </paper-material>
+              </a>
+
+              <a href="/other" class="offer-button">
+                <paper-material elevation="1">
+                  <span>Fleet management</span>
+                  <span>Learn more</span>
+                </paper-material>
+              </a>
+
+
             </section>
 
-            <section data-route="users">
-              <paper-material elevation="1">
-                <h2 class="paper-font-display2">Users</h2>
-                <p>This is the users section</p>
-                <a href="/users/Rob">Rob</a></p>
-              </paper-material>
+
+            <section data-route="rent-a-car">
+
+              <rent-a-car pickup-location="{{ pickupLocation }}" return-location="{{ returnLocation }}" pickup-date-and-time="{{ pickupDate }}" return-date-and-time="{{ returnDate }}"></rent-a-car>
+
             </section>
 
-            <section data-route="user-info">
+
+            <section data-route="sign-in">
+          
+              <paper-material elevation="1">
+
+                <paper-input-container>
+                  <label>User name</label>
+                  <input is="iron-input">
+                </paper-input-container>
+
+                <paper-input-container>
+                  <label>Password</label>
+                  <input is="iron-input">
+                </paper-input-container>
+
+                <div class="button-container">
+                  <a href="/confirm-reservation" class="link-button" on-click="onMenuSelect">
+                    <paper-button raised>Sign in</paper-button>
+                  </a>
+                </div>
+
+              </paper-material>
+
+            </section>
+
+
+            <section data-route="confirm-reservation">
+
+              <paper-material elevation="1">
+                <h2 class="paper-font-display2">Confirm Reservation</h2>
+                <p>This is the reservation to confirm</p>
+                <p>You will pickup the car from <strong>pickup Location</strong> at <strong>pickup Date</strong></p>
+                <p>You will return the car to <strong>return Location</strong> at <strong>return Date</strong></p>
+                <div class="button-container">
+                  <a href="/confirmed" class="link-button" on-click="onMenuSelect">
+                    <paper-button raised>Confirm</paper-button>
+                  </a>
+                </div>
+              </paper-material>
+
+            </section>
+
+
+            <section data-route="confirmed">
+
+              <paper-material elevation="1">
+                <h2 class="paper-font-display2">Reservation Confirmed</h2>
+              </paper-material>
+
+            </section>
+
+
+            <section data-route="deals">
+
               <paper-material elevation="1">
                 <h2 class="paper-font-display2">
-                User:<span>{{params.name}}</span>
+                  This is deal one
                 </h2>
-                <div>This is <span>{{params.name}}</span>'s section</div>
+                <div class="center">
+                  <img src="http://www.enterprise.com/content/car_rental/images/2015/tile_RSG1_customCorp_generalAviation.jpg">
+                </div>
               </paper-material>
+
+              <paper-material elevation="1">
+                <h2 class="paper-font-display2">
+                  This is deal two
+                </h2>
+                <div class="center">
+                  <img src="http://www.enterprise.com/content/car_rental/images/2015/tile_GAG_enterprise-europe_10off_EN_us.png">
+                </div>
+              </paper-material>
+
             </section>
 
-            <section data-route="contact">
+
+            <section data-route="truck">
+
               <paper-material elevation="1">
-                <h2 class="paper-font-display2">Contact</h2>
-                <p>This is the contact section</p>
+                <h2 class="paper-font-display2">Rent a Truck page</h2>
+                <p>This is the other section</p>
               </paper-material>
+
+            </section>
+
+            <section data-route="other">
+
+              <paper-material elevation="1">
+                <h2 class="paper-font-display2">Other page</h2>
+                <p>This is the other section</p>
+              </paper-material>
+
             </section>
 
           </iron-pages>
-          </paper-header-panel>
+
+        </paper-header-panel>
+
     </paper-drawer-panel>
 
     <paper-toast id="caching-complete"
@@ -163,6 +301,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <!-- build:js scripts/app.js -->
   <script src="scripts/app.js"></script>
   <!-- endbuild-->
+
 </body>
 
 </html>
